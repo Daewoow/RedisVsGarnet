@@ -1,0 +1,10 @@
+﻿services:
+  redis:
+    image: redis:8.2-rc1-alpine3.22
+    ports:
+      - "6369:6379"
+  
+  garnet:
+    image: ghcr.io/microsoft/garnet:1.0.74
+    ports:
+      - "6379:6379"
