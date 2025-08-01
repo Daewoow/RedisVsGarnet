@@ -1,36 +1,35 @@
 ﻿using BenchmarkDotNet.Attributes;
 using Benchmarking.Clients;
-using DBComparing.Benchmarks;
-using DBComparing.Clients;
+
+namespace DBComparing.Benchmarks;
 
 [MemoryDiagnoser]
-public class ParallelBenchmark
+public class ParallelBenchmark : Benchmark
 {
-    private IKeyValueClient _redis;
-    private IKeyValueClient _garnet;
-
     [Params(1000, 10000)]
     public int Operations;
+    
+    private string[] _keys;
+    private string[] _values;
 
     [GlobalSetup]
-    public void Setup()
+    public override void Setup()
     {
-        try
-        {
-            _redis = new RedisClient("localhost", 6369);
-            _garnet = new GarnetClient("localhost", 6379);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine($"Parallel with: {e}");
-        }
+        _redis = new RedisClient("localhost", 6369);
+        _garnet = new GarnetClient("localhost", 6379);
+        
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        
+        _keys = Enumerable.Range(0, 10000).Select(i => $"par:{i}").ToArray();
+        _values = Enumerable.Range(0, 10000).Select(i => $"val:{i}").ToArray();
     }
 
     [Benchmark]
     public async Task Redis_Parallel()
     {
         var tasks = Enumerable.Range(0, Operations).Select(i =>
-            _redis.SetGetAsync($"par:{i}", $"val:{i}")
+            _redis.SetGetAsync(_keys[i % _keys.Length], _values[i % _values.Length])
         );
         await Task.WhenAll(tasks);
     }
@@ -39,7 +38,7 @@ public class ParallelBenchmark
     public async Task Garnet_Parallel()
     {
         var tasks = Enumerable.Range(0, Operations).Select(i =>
-            _garnet.SetGetAsync($"par:{i}", $"val:{i}")
+            _garnet.SetGetAsync(_keys[i % _keys.Length], _values[i % _values.Length])
         );
         await Task.WhenAll(tasks);
     }

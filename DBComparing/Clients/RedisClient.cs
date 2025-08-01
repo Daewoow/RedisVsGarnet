@@ -24,4 +24,8 @@ public class RedisClient : IKeyValueClient
         await SetAsync(key, value);
         await GetAsync(key);
     }
+
+    public async Task PingAsync() => await _db.PingAsync();
+
+    public IBatch CreateBatch() => _db.CreateBatch();
 }

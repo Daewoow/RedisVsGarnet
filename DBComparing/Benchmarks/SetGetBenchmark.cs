@@ -21,12 +21,6 @@ public class SetGetBenchmark
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
-
-            for (var i = 0; i < 1000; i++)
-            {
-                _redis.SetGetAsync($"warmup:{i}", "value").Wait();
-                _garnet.SetGetAsync($"warmup:{i}", "value").Wait();
-            }
         }
         catch (Exception e)
         {
