@@ -5,24 +5,14 @@ using DBComparing.Clients;
 namespace DBComparing.Benchmarks;
 
 [MemoryDiagnoser]
-public class PipelineBenchmark
+public class PipelineBenchmark : Benchmark
 {
-    private IKeyValueClient _redis;
-    private IKeyValueClient _garnet;
-    private List<(string, string)> _data;
+    private List<(string, string)> _data = Enumerable.Range(0, Count)
+        .Select(i => ($"pipe:key:{i}", $"value:{i}"))
+        .ToList();
 
     [Params(1000)]
-    public int Count;
-
-    [GlobalSetup]
-    public void Setup()
-    {
-        _redis = new RedisClient("localhost", 6369);
-        _garnet = new GarnetClient("localhost", 6379);
-        _data = Enumerable.Range(0, Count)
-            .Select(i => ($"pipe:key:{i}", $"value:{i}"))
-            .ToList();
-    }
+    public static int Count;
 
     [Benchmark]
     public async Task Redis_Individual()

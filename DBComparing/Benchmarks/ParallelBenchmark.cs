@@ -9,21 +9,8 @@ public class ParallelBenchmark : Benchmark
     [Params(1000, 10000)]
     public int Operations;
     
-    private string[] _keys;
-    private string[] _values;
-
-    [GlobalSetup]
-    public override void Setup()
-    {
-        _redis = new RedisClient("localhost", 6369);
-        _garnet = new GarnetClient("localhost", 6379);
-        
-        GC.Collect();
-        GC.WaitForPendingFinalizers();
-        
-        _keys = Enumerable.Range(0, 10000).Select(i => $"par:{i}").ToArray();
-        _values = Enumerable.Range(0, 10000).Select(i => $"val:{i}").ToArray();
-    }
+    private string[] _keys = Enumerable.Range(0, 10000).Select(i => $"par:{i}").ToArray();
+    private string[] _values = Enumerable.Range(0, 10000).Select(i => $"val:{i}").ToArray();
 
     [Benchmark]
     public async Task Redis_Parallel()

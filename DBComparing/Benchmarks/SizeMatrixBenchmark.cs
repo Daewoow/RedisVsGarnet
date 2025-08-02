@@ -5,27 +5,16 @@ using DBComparing.Clients;
 namespace DBComparing.Benchmarks;
 
 [MemoryDiagnoser]
-public class SizeMatrixBenchmark
+public class SizeMatrixBenchmark : Benchmark
 {
-    private IKeyValueClient _redis;
-    private IKeyValueClient _garnet;
-    private string _key;
-    private string _value;
+    private string _key = new ('k', KeySize);
+    private string _value = new ('v', ValueSize);
 
     [Params(10, 10000, 100000)]
-    public int ValueSize;
+    public static int ValueSize;
 
     [Params(10, 1000)]
-    public int KeySize;
-
-    [GlobalSetup]
-    public void Setup()
-    {
-        _redis = new RedisClient("localhost", 6369);
-        _garnet = new GarnetClient("localhost", 6379);
-        _key = new string('k', KeySize);
-        _value = new string('v', ValueSize);
-    }
+    public static int KeySize;
 
     [Benchmark]
     public async Task Redis_SetGet() => await _redis.SetGetAsync(_key, _value);

@@ -1,18 +1,20 @@
 ﻿using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Exporters.Csv;
+using BenchmarkDotNet.Exporters.Json;
+using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Toolchains.InProcess.Emit;
-using Benchmarking.Benchmarks;
-using Benchmarking.Clients;
-using DBComparing.Benchmarks;
 
-var config = ManualConfig
-    .Create(DefaultConfig.Instance)
-    .WithOption(ConfigOptions.DisableOptimizationsValidator, true);
+var config = ManualConfig.Create(DefaultConfig.Instance)
+    .AddLogger(ConsoleLogger.Default)
+    .AddExporter(CsvExporter.Default)   
+    .AddExporter(JsonExporter.Default);     
 
-BenchmarkRunner.Run<SetGetBenchmark>(new DebugInProcessConfig());
-
-BenchmarkRunner.Run<BulkSetGetBenchmark>(new DebugInProcessConfig());
-BenchmarkRunner.Run<ParallelBenchmark>(new DebugInProcessConfig());
+BenchmarkRunner.Run(typeof(Program).Assembly, config);
+//
+// BenchmarkRunner.Run<SetGetBenchmark>(new DebugInProcessConfig());
+//
+// BenchmarkRunner.Run<BulkSetGetBenchmark>(new DebugInProcessConfig());
+// BenchmarkRunner.Run<ParallelBenchmark>(new DebugInProcessConfig());
 
 // var client = new GarnetClient("localhost", 6379);
 // var client = new RedisClient("localhost", 6369);

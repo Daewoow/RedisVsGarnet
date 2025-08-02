@@ -40,7 +40,6 @@ public class BulkSetGetBenchmark : Benchmark
         {
             Console.WriteLine($"Bulk with: {e}");
         }
-        
     }
 
     [Benchmark]

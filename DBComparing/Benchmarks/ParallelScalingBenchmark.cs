@@ -5,23 +5,16 @@ using DBComparing.Clients;
 namespace DBComparing.Benchmarks;
 
 [MemoryDiagnoser]
-public class ParallelScalingBenchmark
+public class ParallelScalingBenchmark : Benchmark
 {
-    private IKeyValueClient _redis;
-    private IKeyValueClient _garnet;
-
+    private readonly string[] _keys = Enumerable.Range(0, 10000).Select(x => $"scale:{x}").ToArray();
+    private readonly string[] _values = Enumerable.Range(0, 100000).Select(x => $"v:{x}").ToArray();
+    
     [Params(1, 4, 16, 64, 256)]
     public int DegreeOfParallelism;
 
     [Params(10000)]
     public int TotalOperations;
-
-    [GlobalSetup]
-    public void Setup()
-    {
-        _redis = new RedisClient("localhost", 6369);
-        _garnet = new GarnetClient("localhost", 6379);
-    }
 
     [Benchmark]
     public async Task Redis_ScaledParallel()
@@ -32,7 +25,7 @@ public class ParallelScalingBenchmark
             await semaphore.WaitAsync();
             try
             {
-                await _redis.SetGetAsync($"scale:{i}", $"v:{i}");
+                await _redis.SetGetAsync(_keys[i % _keys.Length], _values[i % _values.Length]);
             }
             finally
             {
@@ -51,7 +44,7 @@ public class ParallelScalingBenchmark
             await semaphore.WaitAsync();
             try
             {
-                await _garnet.SetGetAsync($"scale:{i}", $"v:{i}");
+                await _garnet.SetGetAsync(_keys[i % _keys.Length], _values[i % _values.Length]);
             }
             finally
             {
